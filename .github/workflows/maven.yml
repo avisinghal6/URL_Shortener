@@ -30,10 +30,10 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file /home/runner/work/URL_Shortener/URL_Shortener/url-shortener-backend/pom.xml
-    - name: Change to Test Directory
-      run: cd /home/runner/work/URL_Shortener/URL_Shortener/url-shortener-backend
     - name: Test with Maven
-      run: mvn test 
+      run: |
+        cd /home/runner/work/URL_Shortener/URL_Shortener/url-shortener-backend/
+        mvn test
       
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
