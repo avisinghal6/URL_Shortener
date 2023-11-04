@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v3
     - name: Change to Test Directory
       run: cd /home/runner/work/URL_Shortener/URL_Shortener/url-shortener-backend
-    - uses: actions/checkout@v3
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
