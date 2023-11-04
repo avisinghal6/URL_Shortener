@@ -4,8 +4,7 @@ Build-Jdk: 17.0.6
 Implementation-Title: Url Shortener Backend
 Implementation-Version: 0.0.1-SNAPSHOT
 Implementation-Vendor-Id: io.intellecttitans.springbootbackend
-Implementation-Vendor: Pivotal Software, Inc.
-Implementation-URL: http://projects.spring.io/spring-boot/url-shortener-
- backend/
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-boot
+ -starter-parent/url-shortener-backend
 Created-By: Maven Integration for Eclipse
 
