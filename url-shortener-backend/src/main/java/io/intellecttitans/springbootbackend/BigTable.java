@@ -1,5 +1,8 @@
 package io.intellecttitans.springbootbackend;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.api.gax.rpc.NotFoundException;
 
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -15,7 +18,7 @@ public class BigTable {
 	String projectId;
 	String instanceId;
 	String tableId;
-
+	
 	public BigTable(String projectId, String instanceId, String tableId, String columnFamilyName) {
 		// Initialize client that will be used to send requests. This client only needs
 		// to be created once, and can be reused for multiple requests.
@@ -36,11 +39,19 @@ public class BigTable {
 	}
 
 	public static void main(String... args) {
-		BigTable bigTable = new BigTable("rice-comp-539-spring-2022", "rice-shared", "team2_urlshortener_urls", "cf1");
+		BigTable bigTable = new BigTable("rice-comp-539-spring-2022", "rice-shared", "team2_urlshortener_urls", "short_to_long_url");
 
 		// Dummy testing code
-		bigTable.writeRow("new data", "c1", "r1");
-		bigTable.getRow("r1");
+		List<String> subFamily= new ArrayList<>();
+		subFamily.add("long_url");
+		subFamily.add("created");
+		
+		List<String> value= new ArrayList<>();
+		value.add("www.temp.com");
+		value.add("5_Nov");
+		
+		bigTable.writeRow(value, subFamily, "temp.com");
+		bigTable.getRow("temp.com");
 	}
 
 	public void getRow(String rowKey) {
@@ -60,12 +71,16 @@ public class BigTable {
 		}
 	}
 
-	public void writeRow(String value, String subfamily, String rowKey) {
+	public void writeRow(List<String> value, List<String> subFamily, String rowKey) {
 		try {
 			long timestamp = System.currentTimeMillis() * 1000;
 
-			RowMutation rowMutation = RowMutation.create(tableId, rowKey)
-					.setCell(columnFamilyName, subfamily, value);
+			RowMutation rowMutation = RowMutation.create(tableId, rowKey);
+			
+			for(int i=0;i<subFamily.size();i++) {
+				rowMutation.setCell(columnFamilyName, subFamily.get(i), value.get(i));
+			}
+			
 
 			dataClient.mutateRow(rowMutation);
 			System.out.printf("Successfully wrote row %s", rowKey);
