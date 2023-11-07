@@ -3,7 +3,7 @@ package io.intellecttitans.springbootbackend;
 import java.util.UUID;
 import java.util.Random;
 
-public class Base64Encoding {
+public class Base62Encoding {
 
 	public static String base62Encoding() {
 		UUID uuid = UUID.randomUUID();
@@ -52,6 +52,6 @@ public class Base64Encoding {
 	}
 
 	public static void main(String... args) {
-		Base64Encoding.base62Encoding();
+		Base62Encoding.base62Encoding();
 	}
 }
