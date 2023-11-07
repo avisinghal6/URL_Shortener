@@ -18,7 +18,7 @@ public class BigTable {
 	String projectId;
 	String instanceId;
 	String tableId;
-	
+
 	public BigTable(String projectId, String instanceId, String tableId, String columnFamilyName) {
 		// Initialize client that will be used to send requests. This client only needs
 		// to be created once, and can be reused for multiple requests.
@@ -33,30 +33,37 @@ public class BigTable {
 			System.out.println("Created data client");
 
 		} catch (Exception e) {
-			System.out.println("Error during quickstart: \n" + e.toString());
+			System.out.println("Error during client creation: \n" + e.toString());
 		}
 
 	}
 
 	public static void main(String... args) {
-		BigTable bigTable = new BigTable("rice-comp-539-spring-2022", "rice-shared", "team2_urlshortener_urls", "short_to_long_url");
+		BigTable bigTable = new BigTable("rice-comp-539-spring-2022", "rice-shared", "team2_urlshortener_urls",
+				"short_to_long_url");
 
 		// Dummy testing code
-		List<String> subFamily= new ArrayList<>();
+		List<String> subFamily = new ArrayList<>();
 		subFamily.add("long_url");
 		subFamily.add("created");
-		
-		List<String> value= new ArrayList<>();
+
+		List<String> value = new ArrayList<>();
 		value.add("www.temp.com");
 		value.add("5_Nov");
-		
-		bigTable.writeRow(value, subFamily, "temp.com");
+
+//		bigTable.writeRow(value, subFamily, "temp.com");
 		bigTable.getRow("temp.com");
+//		bigTable.rowExists("temp.com");
+//		System.out.println("done");
+//		bigTable.rowExists("a.com");
 	}
 
 	public void getRow(String rowKey) {
 
 		try {
+			if (!this.rowExists(rowKey)) {
+				return;
+			}
 			Row row = dataClient.readRow(tableId, rowKey);
 			System.out.println("Row: " + row.getKey().toStringUtf8());
 			for (RowCell cell : row.getCells()) {
@@ -67,7 +74,19 @@ public class BigTable {
 		} catch (NotFoundException e) {
 			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
 		} catch (Exception e) {
-			System.out.println("Error during quickstart: \n" + e.toString());
+			System.out.println("Error during reading rows: \n" + e.toString());
+		}
+	}
+
+	public boolean rowExists(String rowKey) {
+
+		try {
+			Row row = dataClient.readRow(tableId, rowKey);
+			System.out.println("Row: " + row.getKey().toStringUtf8() + "exists");
+			return true;
+		} catch (Exception e) {
+			System.err.println("Row" + rowKey +" does not exist " + e.getMessage());
+			return false;
 		}
 	}
 
@@ -76,11 +95,10 @@ public class BigTable {
 			long timestamp = System.currentTimeMillis() * 1000;
 
 			RowMutation rowMutation = RowMutation.create(tableId, rowKey);
-			
-			for(int i=0;i<subFamily.size();i++) {
+
+			for (int i = 0; i < subFamily.size(); i++) {
 				rowMutation.setCell(columnFamilyName, subFamily.get(i), value.get(i));
 			}
-			
 
 			dataClient.mutateRow(rowMutation);
 			System.out.printf("Successfully wrote row %s", rowKey);
