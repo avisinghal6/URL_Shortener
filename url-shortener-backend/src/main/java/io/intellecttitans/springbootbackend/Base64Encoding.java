@@ -6,7 +6,6 @@ import java.util.Random;
 public class Base64Encoding {
 
 	public static String base62Encoding() {
-		String characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		UUID uuid = UUID.randomUUID();
 
 		long MSB = uuid.getMostSignificantBits();
@@ -53,6 +52,6 @@ public class Base64Encoding {
 	}
 
 	public static void main(String... args) {
-		Base64Encoding.base64Encoding();
+		Base64Encoding.base62Encoding();
 	}
 }
