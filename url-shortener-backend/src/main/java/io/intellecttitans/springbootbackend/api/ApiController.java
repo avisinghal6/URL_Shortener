@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import io.intellecttitans.springbootbackend.BigTable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +23,7 @@ public class ApiController {
 	}
 
 	@RequestMapping("/api/longurl/{longUrl}")
-	public String longToShortUrl(@PathVariable String longUrl) {
+	public ResponseEntity<String> longToShortUrl(@PathVariable String longUrl) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
@@ -32,13 +34,13 @@ public class ApiController {
 		value.add(longUrl);
 		value.add(currentDate.toString());
 		bigTableObj.writeRow(value, subFamily, shortUrl);
-		return shortUrl;
+		return new ResponseEntity<>(shortUrl, HttpStatus.BAD_REQUEST);
 	}
 
 	@RequestMapping("/api/shorturl/{shortUrl}")
-	public String shortToLongUrl(@PathVariable String shortUrl) {
-		List<String> longUrl= bigTableObj.getRow(shortUrl);
-		return longUrl.get(1);
+	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
+		List<String> longUrl = bigTableObj.getRow(shortUrl);
+		return new ResponseEntity<>(longUrl.get(1), HttpStatus.BAD_REQUEST);
 	}
 
 	@RequestMapping("/api/barcode/{longUrl}")
