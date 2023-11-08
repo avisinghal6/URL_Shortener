@@ -1,4 +1,8 @@
 package io.intellecttitans.springbootbackend.api;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -25,11 +29,14 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 import io.intellecttitans.springbootbackend.Base62Encoding;
 
+@CrossOrigin(origins = "http://localhost:3001")
 @RestController
 public class ApiController {
 
 	@Autowired
 	private BigTable bigTableObj;
+
+
 
 	public ApiController(BigTable bigTable) {
 		bigTableObj = bigTable;
