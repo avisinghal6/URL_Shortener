@@ -2,6 +2,13 @@ package io.intellecttitans.springbootbackend.api;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import org.springframework.core.io.InputStreamResource;
+import java.io.InputStream;
 
 
 import java.awt.image.BufferedImage;
@@ -67,7 +74,7 @@ public class ApiController {
 	}
 
 	@RequestMapping("/api/barcode/{longUrl}")
-	public String shortToLongUrlBarCode(@PathVariable String longUrl) throws Exception  {
+	public ResponseEntity<InputStreamResource> shortToLongUrlBarCode(@PathVariable String longUrl) throws Exception  {
 		// TODO: create the short URL and bar code, return the bar code, save in
 		// database. The return type will be changed.
 		
@@ -81,15 +88,22 @@ public class ApiController {
 		      barcodeWriter.encode(longUrl, BarcodeFormat.QR_CODE, 200, 200);
 		    
 		    BufferedImage image= MatrixToImageWriter.toBufferedImage(bitMatrix);
-		    
-	        File outputFile = new File("barcode.png"); // Replace with the desired file path
-	        ImageIO.write(image, "PNG", outputFile);
-	        System.out.println("Barcode image saved to " + outputFile.getAbsolutePath());
+
+	        ByteArrayOutputStream outputFile = new ByteArrayOutputStream();
+	        ImageIO.write(image, "png", outputFile);
+			InputStream is = new ByteArrayInputStream(outputFile.toByteArray());
+			return ResponseEntity
+					.ok()
+					.contentType(MediaType.IMAGE_PNG)
+					.body(new InputStreamResource(is));
 	    } catch (IOException e) {
 	        e.printStackTrace();
+			return ResponseEntity
+					.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new InputStreamResource(new ByteArrayInputStream(new byte[0])));
 	    }
-		
-		return "QR generated successfully";
+
+
 	}
 
 }
