@@ -34,13 +34,16 @@ public class ApiController {
 		value.add(longUrl);
 		value.add(currentDate.toString());
 		bigTableObj.writeRow(value, subFamily, shortUrl);
-		return new ResponseEntity<>(shortUrl, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 	}
 
 	@RequestMapping("/api/shorturl/{shortUrl}")
 	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
 		List<String> longUrl = bigTableObj.getRow(shortUrl);
-		return new ResponseEntity<>(longUrl.get(1), HttpStatus.BAD_REQUEST);
+		if(longUrl!=null)
+			return new ResponseEntity<>(longUrl.get(1), HttpStatus.OK);
+		else
+			return new ResponseEntity<>("Error getting the longUrl", HttpStatus.FORBIDDEN);
 	}
 
 	@RequestMapping("/api/barcode/{longUrl}")
