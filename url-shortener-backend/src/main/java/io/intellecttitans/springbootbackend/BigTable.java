@@ -3,6 +3,8 @@ package io.intellecttitans.springbootbackend;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import com.google.api.gax.rpc.NotFoundException;
 
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -10,37 +12,41 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-import com.google.protobuf.ByteString;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BigTable {
+	@Value("${bigTable.columnFamilyName}")
 	String columnFamilyName;
-	BigtableDataClient dataClient;
+
+	@Value("${bigTable.projectId}")
 	String projectId;
+
+	@Value("${bigTable.instanceId}")
 	String instanceId;
+
+	@Value("${bigTable.tableId}")
 	String tableId;
 
-	public BigTable(String projectId, String instanceId, String tableId, String columnFamilyName) {
-		// Initialize client that will be used to send requests. This client only needs
-		// to be created once, and can be reused for multiple requests.
+	BigtableDataClient dataClient;
+
+	@PostConstruct
+	public void init() {
+		// Initialize the dataClient within the @PostConstruct method.
 		try {
-			this.columnFamilyName = columnFamilyName;
-			this.projectId = projectId;
-			this.instanceId = instanceId;
-			this.tableId = tableId;
+			System.out.println(columnFamilyName);
 			BigtableDataSettings settings = BigtableDataSettings.newBuilder().setProjectId(projectId)
 					.setInstanceId(instanceId).build();
-			this.dataClient = BigtableDataClient.create(settings);
+			dataClient = BigtableDataClient.create(settings);
 			System.out.println("Created data client");
-
 		} catch (Exception e) {
 			System.out.println("Error during client creation: \n" + e.toString());
 		}
-
 	}
 
 	public static void main(String... args) {
-		BigTable bigTable = new BigTable("rice-comp-539-spring-2022", "rice-shared", "team2_urlshortener_urls",
-				"short_to_long_url");
+		BigTable bigTable = new BigTable();
 
 		// Dummy testing code
 		List<String> subFamily = new ArrayList<>();
@@ -61,7 +67,7 @@ public class BigTable {
 	public void getRow(String rowKey) {
 
 		try {
-			if (!this.rowExists(rowKey)) {
+			if (!rowExists(rowKey)) {
 				return;
 			}
 			Row row = dataClient.readRow(tableId, rowKey);
@@ -85,14 +91,14 @@ public class BigTable {
 			System.out.println("Row: " + row.getKey().toStringUtf8() + "exists");
 			return true;
 		} catch (Exception e) {
-			System.err.println("Row" + rowKey +" does not exist " + e.getMessage());
+			System.err.println("Row" + rowKey + " does not exist " + e.getMessage());
 			return false;
 		}
 	}
 
 	public void writeRow(List<String> value, List<String> subFamily, String rowKey) {
 		try {
-			long timestamp = System.currentTimeMillis() * 1000;
+//			long timestamp = System.currentTimeMillis() * 1000;
 
 			RowMutation rowMutation = RowMutation.create(tableId, rowKey);
 
@@ -114,7 +120,7 @@ public class BigTable {
 		// background
 		// resources.
 		try {
-			this.dataClient.close();
+			dataClient.close();
 			System.out.println("Closing data client");
 		} finally {
 			super.finalize();
