@@ -22,7 +22,6 @@ public class ApiController {
 
 	@RequestMapping("/api/longurl/{longUrl}")
 	public String longToShortUrl(@PathVariable String longUrl) {
-		// TODO: insert the long,short URL in the big table.
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
@@ -32,17 +31,14 @@ public class ApiController {
 		List<String> value = new ArrayList<>();
 		value.add(longUrl);
 		value.add(currentDate.toString());
-		bigTableObj.writeRow(subFamily, value, shortUrl);
-		bigTableObj.getRow(shortUrl);
+		bigTableObj.writeRow(value, subFamily, shortUrl);
 		return shortUrl;
 	}
 
 	@RequestMapping("/api/shorturl/{shortUrl}")
 	public String shortToLongUrl(@PathVariable String shortUrl) {
-		// TODO: query the data base to retrieve the long url for the corresponding
-		// short url.
-
-		return "";
+		List<String> longUrl= bigTableObj.getRow(shortUrl);
+		return longUrl.get(1);
 	}
 
 	@RequestMapping("/api/barcode/{longUrl}")
