@@ -1,4 +1,4 @@
-package io.intellecttitans.springbootbackend;
+package io.intellecttitans.springbootbackend.utils;
 
 import java.util.Collection;
 import java.util.Map;
