@@ -15,39 +15,39 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @SpringBootApplication
-public class URLShortenerApp extends WebSecurityConfigurerAdapter{
+public class URLShortenerApp{
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		SpringApplication.run(URLShortenerApp.class, args);
 	}
 	
-	@Override
-    protected void configure(HttpSecurity http) throws Exception {
-    	// @formatter:off
-        http
-            .authorizeRequests()
-            .antMatchers("/hello")
-            .permitAll().anyRequest().authenticated()
-            .and().oauth2Login()
-            .userInfoEndpoint()
-            .userService(oauthUserService).and()
-            .successHandler(new AuthenticationSuccessHandler() {
-                @Override
-                public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                        Authentication authentication) throws IOException, ServletException {
-         
-                    CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
-         
-                    System.out.println(oauthUser.getEmail());
-         
-                    response.sendRedirect("/hello");
-                }
-            });
-        // @formatter:on
-    }
-	
-	@Autowired
-    private CustomOAuth2UserService oauthUserService;
+//	@Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//    	// @formatter:off
+//        http
+//            .authorizeRequests()
+//            .antMatchers("/hello")
+//            .permitAll().anyRequest().authenticated()
+//            .and().oauth2Login()
+//            .userInfoEndpoint()
+//            .userService(oauthUserService).and()
+//            .successHandler(new AuthenticationSuccessHandler() {
+//                @Override
+//                public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+//                        Authentication authentication) throws IOException, ServletException {
+//         
+//                    CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
+//         
+//                    System.out.println(oauthUser.getEmail());
+//         
+//                    response.sendRedirect("/hello");
+//                }
+//            });
+//        // @formatter:on
+//    }
+//	
+//	@Autowired
+//    private CustomOAuth2UserService oauthUserService;
 
 }
