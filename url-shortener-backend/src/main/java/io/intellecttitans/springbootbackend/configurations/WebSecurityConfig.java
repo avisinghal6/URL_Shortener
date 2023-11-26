@@ -15,7 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import io.intellecttitans.springbootbackend.CustomOAuth2User;
-import io.intellecttitans.springbootbackend.CustomOAuth2UserService;
+import io.intellecttitans.springbootbackend.services.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity

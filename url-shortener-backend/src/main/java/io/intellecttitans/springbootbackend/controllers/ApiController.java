@@ -1,4 +1,4 @@
-package io.intellecttitans.springbootbackend.api;
+package io.intellecttitans.springbootbackend.controllers;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
