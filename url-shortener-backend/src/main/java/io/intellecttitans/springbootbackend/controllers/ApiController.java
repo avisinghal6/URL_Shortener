@@ -14,11 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import io.intellecttitans.springbootbackend.configurations.BigTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.zxing.BarcodeFormat;
@@ -36,8 +39,8 @@ public class ApiController {
 		bigTableObj = bigTable;
 	}
 
-	@RequestMapping("/api/longurl/{longUrl}")
-	public ResponseEntity<String> longToShortUrl(@PathVariable String longUrl) {
+	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
@@ -45,9 +48,10 @@ public class ApiController {
 		subFamily.add("created");
 
 		List<String> value = new ArrayList<>();
-		value.add(longUrl);
+		value.add(long_url);
 		value.add(currentDate.toString());
 		bigTableObj.writeRow(value, subFamily, shortUrl);
+		System.out.println(long_url);
 		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 	}
 
