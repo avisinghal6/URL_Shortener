@@ -44,6 +44,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .permitAll()
             .anyRequest().authenticated()
             .and().oauth2Login()
+            //the userinfoendpoint and userservice are important because they add the suer to the spring security context, without this we would not be
+            //able to check if user is authentication of not i.e in the api controller.
             .userInfoEndpoint()
             .userService(oauthUserService).and()
             .successHandler(new SuccessHandler());
