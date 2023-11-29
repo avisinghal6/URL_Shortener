@@ -42,10 +42,6 @@ public class ApiController {
 	@Autowired
 	private UserTable userTable;
 
-//	public ApiController(BigTable bigTable) {
-//		bigTableObj = bigTable;
-//	}
-
 	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
@@ -64,17 +60,19 @@ public class ApiController {
 		subFamily2.add("created");
 		subFamily2.add("name");
 		
-		List<String> data= userTable.getRow("as278@rice.edu");
-		System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
-		data.set(0, data.get(0)+","+shortUrl);
-		userTable.writeRow(data, subFamily2, "as278@rice.edu");
+//		List<String> data= userTable.getRow("as278@rice.edu");
+//		System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
+//		data.set(0, data.get(0)+","+shortUrl);
+//		userTable.writeRow(data, subFamily2, "as278@rice.edu");
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
-			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
-//			List<String> data= userTable.getRow(oauthUser.getEmail());
-//			System.out.println(data);
+//			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
+			List<String> data= userTable.getRow(oauthUser.getEmail());
+//			System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
+			data.set(0, data.get(0)+","+shortUrl);
+			userTable.writeRow(data, subFamily2, oauthUser.getEmail());
 		}
 		
 		System.out.println(long_url);
