@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.intellecttitans.springbootbackend.configurations.BigTable;
+import io.intellecttitans.springbootbackend.configurations.UserTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
 
@@ -37,33 +38,16 @@ public class ApiController {
 
 	@Autowired
 	private BigTable bigTableObj;
+	
+	@Autowired
+	private UserTable userTable;
 
 //	public ApiController(BigTable bigTable) {
 //		bigTableObj = bigTable;
 //	}
 
-//	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
-//	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
-//		Date currentDate = new Date();
-//		String shortUrl = Base62Encoding.base62Encoding();
-//		List<String> subFamily = new ArrayList<>();
-//		subFamily.add("long_url");
-//		subFamily.add("created");
-//
-//		List<String> value = new ArrayList<>();
-//		value.add(long_url);
-//		value.add(currentDate.toString());
-//		bigTableObj.writeRow(value, subFamily, shortUrl);
-//		System.out.println(long_url);
-//		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
-//	}
-//	
-	@RequestMapping("/api/longurl/{long_url}")
-	public ResponseEntity<String> longToShortUrl(@PathVariable String long_url) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
-
-		System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
+	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
@@ -74,9 +58,39 @@ public class ApiController {
 		value.add(long_url);
 		value.add(currentDate.toString());
 		bigTableObj.writeRow(value, subFamily, shortUrl);
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
+			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
+		}
+		
 		System.out.println(long_url);
 		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 	}
+//	
+//	@RequestMapping("/api/longurl/{long_url}")
+//	public ResponseEntity<String> longToShortUrl(@PathVariable String long_url) {
+//		
+//		Date currentDate = new Date();
+//		String shortUrl = Base62Encoding.base62Encoding();
+//		List<String> subFamily = new ArrayList<>();
+//		subFamily.add("long_url");
+//		subFamily.add("created");
+//
+//		List<String> value = new ArrayList<>();
+//		value.add(long_url);
+//		value.add(currentDate.toString());
+//		bigTableObj.writeRow(value, subFamily, shortUrl);
+//		
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
+//			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+//			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
+//		}
+//		System.out.println(long_url);
+//		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
+//	}
 
 	@RequestMapping("/api/shorturl/{shortUrl}")
 	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {

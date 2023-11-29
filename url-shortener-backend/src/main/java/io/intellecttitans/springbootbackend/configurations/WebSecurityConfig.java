@@ -32,9 +32,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
     	// @formatter:off
         http
+        //can remove csrf disable once we connect with frontend, its needed for verifying with postman.
+        	.csrf().disable()
             .authorizeRequests()
-            .antMatchers("/hello")
-            .permitAll().anyRequest().authenticated()
+            .antMatchers(HttpMethod.POST,"/api/longurl/**")
+            .permitAll()
+            .antMatchers("/api/**")
+            .permitAll()
+            .anyRequest().authenticated()
             .and().oauth2Login()
             .userInfoEndpoint()
             .userService(oauthUserService).and()
@@ -51,11 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	            HttpServletResponse response,
 	            Authentication authentication
 	    ) throws ServletException, IOException {
-	        // Your custom actions go here
-
-	        // Continue with the default behavior (redirect to the original requested URL)
+	        
 	    	CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
-	    	// 
 	    	String email=oauthUser.getEmail();
 	    	String name=oauthUser.getName();
 	    	
@@ -75,6 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 	    	System.out.println(oauthUser.getEmail());
 	    	System.out.println("once");
+	    	//To redirect to original URL.
 	        super.onAuthenticationSuccess(request, response, authentication);
 	    }
 	}
