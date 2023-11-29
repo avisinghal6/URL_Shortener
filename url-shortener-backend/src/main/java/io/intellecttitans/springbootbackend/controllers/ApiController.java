@@ -13,11 +13,14 @@ import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import io.intellecttitans.springbootbackend.configurations.BigTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
+import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,12 +38,32 @@ public class ApiController {
 	@Autowired
 	private BigTable bigTableObj;
 
-	public ApiController(BigTable bigTable) {
-		bigTableObj = bigTable;
-	}
+//	public ApiController(BigTable bigTable) {
+//		bigTableObj = bigTable;
+//	}
 
-	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
-	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
+//	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+//	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
+//		Date currentDate = new Date();
+//		String shortUrl = Base62Encoding.base62Encoding();
+//		List<String> subFamily = new ArrayList<>();
+//		subFamily.add("long_url");
+//		subFamily.add("created");
+//
+//		List<String> value = new ArrayList<>();
+//		value.add(long_url);
+//		value.add(currentDate.toString());
+//		bigTableObj.writeRow(value, subFamily, shortUrl);
+//		System.out.println(long_url);
+//		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
+//	}
+//	
+	@RequestMapping("/api/longurl/{long_url}")
+	public ResponseEntity<String> longToShortUrl(@PathVariable String long_url) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+
+		System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
