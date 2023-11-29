@@ -16,17 +16,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BigTable {
-	@Value("${bigTable.columnFamilyName}")
+public class UrlTable {
+	@Value("${urlTable.columnFamilyName}")
 	String columnFamilyName;
 
-	@Value("${bigTable.projectId}")
+	@Value("${urlTable.projectId}")
 	String projectId;
 
-	@Value("${bigTable.instanceId}")
+	@Value("${urlTable.instanceId}")
 	String instanceId;
 
-	@Value("${bigTable.tableId}")
+	@Value("${urlTable.tableId}")
 	String tableId;
 
 	BigtableDataClient dataClient;
@@ -46,7 +46,7 @@ public class BigTable {
 	}
 
 	public static void main(String... args) {
-		BigTable bigTable = new BigTable();
+		UrlTable bigTable = new UrlTable();
 
 		// Dummy testing code
 		List<String> subFamily = new ArrayList<>();

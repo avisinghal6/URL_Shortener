@@ -71,7 +71,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			value.add("");
 			value.add("5_Nov");
 			
-			if(userTable.rowExists(name)) {
+			if(userTable.rowExists(email)) {
 				System.out.println("User Exists!!");
 			}else {
 				userTable.writeRow(value, subFamily, email);

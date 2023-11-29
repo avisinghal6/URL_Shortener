@@ -18,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import io.intellecttitans.springbootbackend.configurations.BigTable;
+import io.intellecttitans.springbootbackend.configurations.UrlTable;
 import io.intellecttitans.springbootbackend.configurations.UserTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
@@ -37,7 +37,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 public class ApiController {
 
 	@Autowired
-	private BigTable bigTableObj;
+	private UrlTable urlTable;
 	
 	@Autowired
 	private UserTable userTable;
@@ -53,7 +53,7 @@ public class ApiController {
 		List<String> value = new ArrayList<>();
 		value.add(long_url);
 		value.add(currentDate.toString());
-		bigTableObj.writeRow(value, subFamily, shortUrl);
+		urlTable.writeRow(value, subFamily, shortUrl);
 		
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
@@ -104,7 +104,7 @@ public class ApiController {
 
 	@RequestMapping("/api/shorturl/{shortUrl}")
 	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
-		List<String> longUrl = bigTableObj.getRow(shortUrl);
+		List<String> longUrl = urlTable.getRow(shortUrl);
 		if(longUrl!=null)
 			return new ResponseEntity<>(longUrl.get(1), HttpStatus.OK);
 		else
