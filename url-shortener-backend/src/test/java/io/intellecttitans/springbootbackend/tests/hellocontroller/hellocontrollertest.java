@@ -10,10 +10,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.intellecttitans.springbootbackend.hello.HelloController;
+//import io.intellecttitans.springbootbackend.hello.HelloController;
+import io.intellecttitans.springbootbackend.hello.LoginController;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = HelloController.class)
+@WebMvcTest(controllers = LoginController.class)
 public class hellocontrollertest {
 	@Autowired
 	private MockMvc mockMvc;
@@ -25,7 +26,7 @@ public class hellocontrollertest {
 //	private RegisterUseCase registerUseCase;
 	@Test
 	void whenValidInput_thenReturns200() throws Exception {
-		mockMvc.perform(get("/hello"))
+		mockMvc.perform(get("/loginUser"))
 			    .andExpect(status().isOk());
 	 }
 

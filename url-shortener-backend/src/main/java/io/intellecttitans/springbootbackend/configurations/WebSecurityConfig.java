@@ -82,7 +82,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				if(!userTable.writeRow(value, subFamily, email)) {
 					System.err.println("Error writing to user table");
 				}
-			
 			}
 	    	//To redirect to original URL.
 	        super.onAuthenticationSuccess(request, response, authentication);

@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 
-public class HelloController {
+public class LoginController {
 	
-	@RequestMapping("/hello")
-	public String sayHi() {
-		return "Hi";
+	@RequestMapping("/loginUser")
+	public String loginUser() {
+		return "User Logged In";
 	}
 
 }
