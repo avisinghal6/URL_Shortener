@@ -41,7 +41,7 @@ public class UserTable {
 			dataClient = BigtableDataClient.create(settings);
 			System.out.println("Created data client for user table");
 		} catch (Exception e) {
-			System.out.println("Error during client creation for user table: \n" + e.toString());
+			System.err.println("Error during client creation for user table: \n" + e.toString());
 		}
 	}
 
@@ -68,7 +68,7 @@ public class UserTable {
 			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
 			return null;
 		} catch (Exception e) {
-			System.out.println("Error during reading rows: \n" + e.toString());
+			System.err.println("Error during reading rows: \n" + e.toString());
 			return null;
 		}
 	}
@@ -80,14 +80,13 @@ public class UserTable {
 			System.out.println("Row: " + row.getKey().toStringUtf8() + "exists");
 			return true;
 		} catch (Exception e) {
-			System.err.println("Row" + rowKey + " does not exist " + e.getMessage());
+			System.err.println("Row " + rowKey + " does not exist " + e.getMessage());
 			return false;
 		}
 	}
 
-	public void writeRow(List<String> value, List<String> subFamily, String rowKey) {
+	public boolean writeRow(List<String> value, List<String> subFamily, String rowKey) {
 		try {
-//			long timestamp = System.currentTimeMillis() * 1000;
 
 			RowMutation rowMutation = RowMutation.create(tableId, rowKey);
 
@@ -97,9 +96,11 @@ public class UserTable {
 
 			dataClient.mutateRow(rowMutation);
 			System.out.printf("Successfully wrote row %s", rowKey);
+			return true;
 
 		} catch (Exception e) {
-			System.out.println("Error during WriteSimple: \n" + e.toString());
+			System.err.println("Error during WriteSimple: \n" + e.toString());
+			return false;
 		}
 	}
 

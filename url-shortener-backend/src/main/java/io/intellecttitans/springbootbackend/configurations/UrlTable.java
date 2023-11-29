@@ -35,13 +35,12 @@ public class UrlTable {
 	public void init() {
 		// Initialize the dataClient within the @PostConstruct method.
 		try {
-			System.out.println(columnFamilyName);
 			BigtableDataSettings settings = BigtableDataSettings.newBuilder().setProjectId(projectId)
 					.setInstanceId(instanceId).build();
 			dataClient = BigtableDataClient.create(settings);
-			System.out.println("Created data client");
+			System.out.println("Created data client for URL Table");
 		} catch (Exception e) {
-			System.out.println("Error during client creation: \n" + e.toString());
+			System.err.println("Error during client creation for URL Table: \n" + e.toString());
 		}
 	}
 
@@ -55,6 +54,7 @@ public class UrlTable {
 
 		List<String> value = new ArrayList<>();
 		value.add("www.temp.com");
+		//TODO: update the creation date to true values, or they can also be removed because Bigtable does it by default
 		value.add("5_Nov");
 
 //		bigTable.writeRow(value, subFamily, "temp.com");
@@ -86,7 +86,7 @@ public class UrlTable {
 			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
 			return null;
 		} catch (Exception e) {
-			System.out.println("Error during reading rows: \n" + e.toString());
+			System.err.println("Error during reading rows: \n" + e.toString());
 			return null;
 		}
 	}
@@ -103,10 +103,8 @@ public class UrlTable {
 		}
 	}
 
-	public void writeRow(List<String> value, List<String> subFamily, String rowKey) {
+	public boolean writeRow(List<String> value, List<String> subFamily, String rowKey) {
 		try {
-//			long timestamp = System.currentTimeMillis() * 1000;
-
 			RowMutation rowMutation = RowMutation.create(tableId, rowKey);
 
 			for (int i = 0; i < subFamily.size(); i++) {
@@ -115,9 +113,10 @@ public class UrlTable {
 
 			dataClient.mutateRow(rowMutation);
 			System.out.printf("Successfully wrote row %s", rowKey);
-
+			return true;
 		} catch (Exception e) {
-			System.out.println("Error during WriteSimple: \n" + e.toString());
+			System.err.println("Error during WriteSimple: \n" + e.toString());
+			return false;
 		}
 	}
 

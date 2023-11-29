@@ -2,6 +2,7 @@ package io.intellecttitans.springbootbackend.configurations;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -56,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	            HttpServletResponse response,
 	            Authentication authentication
 	    ) throws ServletException, IOException {
-	        
+	    	Date currentDate = new Date();
 	    	CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
 	    	String email=oauthUser.getEmail();
 	    	String name=oauthUser.getName();
@@ -69,16 +72,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			List<String> value = new ArrayList<>();
 			value.add(name);
 			value.add("");
-			value.add("5_Nov");
+			value.add(currentDate.toString());
 			
 			if(userTable.rowExists(email)) {
 				System.out.println("User Exists!!");
 			}else {
-				userTable.writeRow(value, subFamily, email);
+				if(!userTable.writeRow(value, subFamily, email)) {
+					System.err.println("Error writing to user table");
+				}
 			
 			}
-	    	System.out.println(oauthUser.getEmail());
-	    	System.out.println("once");
 	    	//To redirect to original URL.
 	        super.onAuthenticationSuccess(request, response, authentication);
 	    }

@@ -53,28 +53,25 @@ public class ApiController {
 		List<String> value = new ArrayList<>();
 		value.add(long_url);
 		value.add(currentDate.toString());
-		urlTable.writeRow(value, subFamily, shortUrl);
+		if(!urlTable.writeRow(value, subFamily, shortUrl)) {
+			new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+		}
 		
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
 		
-		List<String> data= userTable.getRow("as278@rice.edu");
-		System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
-		List<String> finalData= new ArrayList<>();
-		
-		data.set(0, data.get(0)+","+shortUrl);
-		finalData.add(data.get(0));
-		userTable.writeRow(finalData, subFamily2, "as278@rice.edu");
-		
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
-//			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
-////			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
-//			List<String> data= userTable.getRow(oauthUser.getEmail());
-////			System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
-//			data.set(0, data.get(0)+","+shortUrl);
-//			userTable.writeRow(data, subFamily2, oauthUser.getEmail());
-//		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
+			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+			List<String> data= userTable.getRow(oauthUser.getEmail());
+			System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
+			List<String> finalData= new ArrayList<>();
+			
+			data.set(0, data.get(0)+","+shortUrl);
+			if(!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
+				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
+			}
+		}
 		
 		System.out.println(long_url);
 		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
