@@ -46,32 +46,32 @@ public class UserTable {
 	}
 
 
-//	public List<String> getRow(String rowKey) {
-//
-//		try {
-//			if (!rowExists(rowKey)) {
-//				return null;
-//			}
-//			Row row = dataClient.readRow(tableId, rowKey);
-//			System.out.println("Row: " + row.getKey().toStringUtf8());
-//			List<String> data= new ArrayList<>();
-//			
-//			for (RowCell cell : row.getCells()) {
-//				System.out.printf("Family: %s    Qualifier: %s    Value: %s%n", cell.getFamily(),
-//						cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8());
-//				data.add(cell.getValue().toStringUtf8());
-//			}
-//			
-//			return data;
-//
-//		} catch (NotFoundException e) {
-//			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
-//			return null;
-//		} catch (Exception e) {
-//			System.out.println("Error during reading rows: \n" + e.toString());
-//			return null;
-//		}
-//	}
+	public List<String> getRow(String rowKey) {
+
+		try {
+			if (!rowExists(rowKey)) {
+				return null;
+			}
+			Row row = dataClient.readRow(tableId, rowKey);
+			System.out.println("Row: " + row.getKey().toStringUtf8());
+			List<String> data= new ArrayList<>();
+			
+			for (RowCell cell : row.getCells()) {
+				System.out.printf("Family: %s    Qualifier: %s    Value: %s%n", cell.getFamily(),
+						cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8());
+				data.add(cell.getValue().toStringUtf8());
+			}
+			
+			return data;
+
+		} catch (NotFoundException e) {
+			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
+			return null;
+		} catch (Exception e) {
+			System.out.println("Error during reading rows: \n" + e.toString());
+			return null;
+		}
+	}
 
 	public boolean rowExists(String rowKey) {
 

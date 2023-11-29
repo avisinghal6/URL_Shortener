@@ -59,10 +59,15 @@ public class ApiController {
 		value.add(currentDate.toString());
 		bigTableObj.writeRow(value, subFamily, shortUrl);
 		
+		List<String> data= userTable.getRow("as278@rice.edu");
+		System.out.println(data);
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
 			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
+//			List<String> data= userTable.getRow(oauthUser.getEmail());
+//			System.out.println(data);
 		}
 		
 		System.out.println(long_url);

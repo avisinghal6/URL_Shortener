@@ -62,17 +62,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    	String name=oauthUser.getName();
 	    	
 	    	List<String> subFamily = new ArrayList<>();
-			subFamily.add("email");
+			subFamily.add("name");
+			subFamily.add("List_of_Urls");
 			subFamily.add("created");
 			
 			List<String> value = new ArrayList<>();
-			value.add(email);
+			value.add(name);
+			value.add("");
 			value.add("5_Nov");
 			
 			if(userTable.rowExists(name)) {
 				System.out.println("User Exists!!");
 			}else {
-				userTable.writeRow(value, subFamily, name);
+				userTable.writeRow(value, subFamily, email);
 			
 			}
 	    	System.out.println(oauthUser.getEmail());
