@@ -21,17 +21,29 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.intellecttitans.springbootbackend.services.CustomOAuth2UserService;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer{
  
 	@Autowired
 	private UserTable userTable;
 
+	@Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+	
 	protected void configure(HttpSecurity http) throws Exception {
     	// @formatter:off
         http
@@ -40,6 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers(HttpMethod.POST,"/api/longurl/**")
             .permitAll()
+            .antMatchers("/loginUser").permitAll()
+            .antMatchers("/").permitAll()
             .antMatchers("/api/**")
             .permitAll()
             .anyRequest().authenticated()
@@ -51,7 +65,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .successHandler(new SuccessHandler());
         // @formatter:on
     }
-	
 	
 	public class SuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
