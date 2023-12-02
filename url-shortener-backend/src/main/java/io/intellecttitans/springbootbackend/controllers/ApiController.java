@@ -44,7 +44,7 @@ public class ApiController {
 	@Autowired
 	private UserTable userTable;
 
-	@RequestMapping(value="/api/longurl/{longUrl}",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	@RequestMapping(value="/api/longurl",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
@@ -56,7 +56,7 @@ public class ApiController {
 		value.add(long_url);
 		value.add(currentDate.toString());
 		if(!urlTable.writeRow(value, subFamily, shortUrl)) {
-			new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
 		}
 		
 		List<String> subFamily2 = new ArrayList<>();
@@ -102,7 +102,7 @@ public class ApiController {
 //		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 //	}
 
-	@RequestMapping("/api/shorturl/{shortUrl}")
+	@RequestMapping("/api/shorturl")
 	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
 		List<String> longUrl = urlTable.getRow(shortUrl);
 		if(longUrl!=null)
@@ -111,7 +111,7 @@ public class ApiController {
 			return new ResponseEntity<>("Error getting the longUrl", HttpStatus.FORBIDDEN);
 	}
 
-	@RequestMapping("/api/barcode/{longUrl}")
+	@RequestMapping("/api/barcode")
 	public String shortToLongUrlBarCode(@PathVariable String longUrl) throws Exception  {
 		// TODO: create the short URL and bar code, return the bar code, save in
 		// database. The return type will be changed.
@@ -136,5 +136,3 @@ public class ApiController {
 		
 		return "QR generated successfully";
 	}
-
-}
