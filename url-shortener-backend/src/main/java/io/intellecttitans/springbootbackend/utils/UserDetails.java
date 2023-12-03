@@ -10,7 +10,7 @@ public class UserDetails {
     	return name;
     }
     
-    public String email() {
+    public String getEmail() {
     	return email;
     }
 

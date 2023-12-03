@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 
 public class CustomJwtDecoder extends OncePerRequestFilter {
@@ -55,14 +56,22 @@ public class CustomJwtDecoder extends OncePerRequestFilter {
                 try {
 
                 	JwtDecoder jwtdecoder = this.securityConfig.jwtDecoder();
-                	System.out.println(authElements[1]);
+                	
                 	Jwt jwt=jwtdecoder.decode(authElements[1]);
+                	System.out.println(jwt);
                 	UserDetails data=googleservice.getUserDetails(jwt);
                 	
-//                	System.out.println(data);
+                	System.out.println(data);
+                	System.out.println(data.getEmail());
                 	if (data != null) {
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(data,null);
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(data,null,Collections.emptyList());
+                        
+                        System.out.println(authentication);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                        Authentication auth=SecurityContextHolder.getContext().getAuthentication();
+                        System.out.println(auth.getName());
+                        System.out.println(auth.isAuthenticated());
+                        System.out.println(auth.getPrincipal().toString());
                     }
                
                 }

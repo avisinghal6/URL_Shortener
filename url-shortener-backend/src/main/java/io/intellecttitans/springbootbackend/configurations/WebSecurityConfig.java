@@ -39,10 +39,13 @@ public class WebSecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig), BasicAuthenticationFilter.class)
-				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(HttpMethod.GET, "/loginUser")
-						.permitAll().requestMatchers("/api/shorturl").authenticated());
 				
+				.authorizeHttpRequests((requests) -> requests
+						.anyRequest()
+						.authenticated()
+						)
+				;
+			
 		return http.build();
 	}
 	
