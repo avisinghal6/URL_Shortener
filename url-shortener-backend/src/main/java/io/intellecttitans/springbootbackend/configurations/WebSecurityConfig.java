@@ -1,108 +1,49 @@
 package io.intellecttitans.springbootbackend.configurations;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import io.intellecttitans.springbootbackend.services.CustomOAuth2UserService;
-import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
+import io.intellecttitans.springbootbackend.services.GoogleUserInfoService;
+
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer{
- 
+
+public class WebSecurityConfig {
+	private GoogleUserInfoService googleservice;
+	
+	@Autowired 
+	SecurityConfig securityConfig;
+	
 	@Autowired
-	private UserTable userTable;
-
-	@Override
-    public void addCorsMappings(CorsRegistry registry) {
-
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+    public WebSecurityConfig(GoogleUserInfoService googleservice) {
+        this.googleservice = googleservice;
     }
 	
-	protected void configure(HttpSecurity http) throws Exception {
-    	// @formatter:off
-        http
-        //can remove csrf disable once we connect with frontend, its needed for verifying with postman.
-        	.csrf().disable()
-            .authorizeRequests()
-            .antMatchers(HttpMethod.POST,"/api/longurl/**")
-            .permitAll()
-            .antMatchers("/loginUser").permitAll()
-            .antMatchers("/").permitAll()
-            .antMatchers("/api/**")
-            .permitAll()
-            .anyRequest().authenticated()
-            .and().oauth2Login()
-            //the userinfoendpoint and userservice are important because they add the suer to the spring security context, without this we would not be
-            //able to check if user is authentication of not i.e in the api controller.
-            .userInfoEndpoint()
-            .userService(oauthUserService).and()
-            .successHandler(new SuccessHandler());
-        // @formatter:on
-    }
 	
-	public class SuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-
-	    @Override
-	    public void onAuthenticationSuccess(
-	            HttpServletRequest request,
-	            HttpServletResponse response,
-	            Authentication authentication
-	    ) throws ServletException, IOException {
-	    	Date currentDate = new Date();
-	    	CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
-	    	String email=oauthUser.getEmail();
-	    	String name=oauthUser.getName();
-	    	
-	    	List<String> subFamily = new ArrayList<>();
-			subFamily.add("name");
-			subFamily.add("List_of_Urls");
-			subFamily.add("created");
-			
-			List<String> value = new ArrayList<>();
-			value.add(name);
-			value.add("");
-			value.add(currentDate.toString());
-			
-			if(userTable.rowExists(email)) {
-				System.out.println("User Exists!!");
-			}else {
-				if(!userTable.writeRow(value, subFamily, email)) {
-					System.err.println("Error writing to user table");
-				}
-			}
-	    	//To redirect to original URL.
-	        super.onAuthenticationSuccess(request, response, authentication);
-	    }
+	
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig), BasicAuthenticationFilter.class)
+				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers(HttpMethod.GET, "/loginUser")
+						.permitAll().requestMatchers("/api/shorturl").authenticated());
+				
+		return http.build();
 	}
 	
-	@Autowired
-    private CustomOAuth2UserService oauthUserService;
-     
- 
 }
