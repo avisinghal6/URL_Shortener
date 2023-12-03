@@ -1,27 +1,36 @@
 package io.intellecttitans.springbootbackend.configurations;
 
+import java.util.Arrays;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 public class CorsConfig {
 
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
+	@Bean
+	public FilterRegistrationBean corsFilter() {
+		System.out.println("inside filter chain");
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.addAllowedOrigin("http://localhost:3000");
+		config.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT,
+				HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
-        // Allow all origins, methods, and headers for demonstration purposes
-        config.addAllowedOrigin("*");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
+		config.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(),
+				HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name()));
 
-        // Apply CORS configuration to all paths
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
-    }
+		config.setMaxAge(3600L);
+		source.registerCorsConfiguration("/**", config);
+		FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+		bean.setOrder(-102);
+		return bean;
+	}
 }
