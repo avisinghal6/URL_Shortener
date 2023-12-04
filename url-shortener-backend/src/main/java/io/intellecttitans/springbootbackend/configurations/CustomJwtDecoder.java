@@ -23,7 +23,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 public class CustomJwtDecoder extends OncePerRequestFilter {
@@ -33,10 +36,14 @@ public class CustomJwtDecoder extends OncePerRequestFilter {
 	
 	GoogleUserInfoService googleservice;
 	
+	UserTable userTable;
+	
+	
 	@Autowired
-    public CustomJwtDecoder(GoogleUserInfoService googleservice,SecurityConfig securityConfig ) {
+    public CustomJwtDecoder(GoogleUserInfoService googleservice,SecurityConfig securityConfig, UserTable userTable ) {
         this.googleservice = googleservice;
         this.securityConfig=securityConfig;
+        this.userTable=userTable;
     }
 	
     @Override
@@ -64,14 +71,33 @@ public class CustomJwtDecoder extends OncePerRequestFilter {
                 	System.out.println(data);
                 	System.out.println(data.getEmail());
                 	if (data != null) {
+                		Date currentDate = new Date();
                         Authentication authentication = new UsernamePasswordAuthenticationToken(data,null,Collections.emptyList());
                         
-                        System.out.println(authentication);
+//                        System.out.println(authentication);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         Authentication auth=SecurityContextHolder.getContext().getAuthentication();
-                        System.out.println(auth.getName());
-                        System.out.println(auth.isAuthenticated());
-                        System.out.println(auth.getPrincipal().toString());
+//                        System.out.println(auth.getName());
+//                        System.out.println(auth.isAuthenticated());
+//                        System.out.println(auth.getPrincipal().toString());
+                        List<String> subFamily = new ArrayList<>();
+            			subFamily.add("name");
+            			subFamily.add("List_of_Urls");
+            			subFamily.add("created");
+            			String name=data.getName();
+            			String email=data.getEmail();
+            			List<String> value = new ArrayList<>();
+            			value.add(name);
+            			value.add("");
+            			value.add(currentDate.toString());
+            			
+            			if(userTable.rowExists(email)) {
+            				System.out.println("User Exists!!");
+            			}else {
+            				if(!userTable.writeRow(value, subFamily, email)) {
+            					System.err.println("Error writing to user table");
+            				}
+            			}
                     }
                
                 }

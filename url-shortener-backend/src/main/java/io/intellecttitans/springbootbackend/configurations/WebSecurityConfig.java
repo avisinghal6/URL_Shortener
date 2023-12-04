@@ -37,6 +37,9 @@ public class WebSecurityConfig implements WebMvcConfigurer{
 	SecurityConfig securityConfig;
 	
 	@Autowired
+	UserTable userTable;
+	
+	@Autowired
     public WebSecurityConfig(GoogleUserInfoService googleservice) {
         this.googleservice = googleservice;
     }
@@ -47,7 +50,7 @@ public class WebSecurityConfig implements WebMvcConfigurer{
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig), BasicAuthenticationFilter.class)
+				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig,userTable), BasicAuthenticationFilter.class)
 				
 				.authorizeHttpRequests((requests) -> requests
 						.anyRequest()
