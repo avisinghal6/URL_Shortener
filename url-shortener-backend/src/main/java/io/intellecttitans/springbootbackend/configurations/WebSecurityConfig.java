@@ -53,6 +53,8 @@ public class WebSecurityConfig implements WebMvcConfigurer{
 				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig,userTable), BasicAuthenticationFilter.class)
 				
 				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers(HttpMethod.POST, "/api/longurl/**").permitAll()
+						.requestMatchers("/api/**").permitAll()
 						.anyRequest()
 						.authenticated()
 						)
