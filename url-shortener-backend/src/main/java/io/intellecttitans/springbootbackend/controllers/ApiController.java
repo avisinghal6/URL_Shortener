@@ -23,6 +23,7 @@ import io.intellecttitans.springbootbackend.configurations.UrlTable;
 import io.intellecttitans.springbootbackend.configurations.UserTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
+import io.intellecttitans.springbootbackend.utils.UserDetails;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,11 +64,11 @@ public class ApiController {
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
-			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+			UserDetails oauthUser = (UserDetails) auth.getPrincipal();
 			List<String> data= userTable.getRow(oauthUser.getEmail());
 			System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
 			List<String> finalData= new ArrayList<>();
-			
+			finalData.add(data.get(0)+","+shortUrl);
 			data.set(0, data.get(0)+","+shortUrl);
 			if(!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
 				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
