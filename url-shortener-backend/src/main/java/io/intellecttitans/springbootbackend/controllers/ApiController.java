@@ -8,6 +8,11 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.logging.Logger;
+import java.util.logging.Handler;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+
 import org.krysalis.barcode4j.impl.upcean.EAN13Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +28,7 @@ import io.intellecttitans.springbootbackend.configurations.UrlTable;
 import io.intellecttitans.springbootbackend.configurations.UserTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
+import io.intellecttitans.springbootbackend.configurations.ChatBot;
 import io.intellecttitans.springbootbackend.utils.UserDetails;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,17 +40,26 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+
+
+import org.json.JSONException;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class ApiController {
 
 	@Autowired
 	private UrlTable urlTable;
-	
+
 	@Autowired
 	private UserTable userTable;
 
-	@RequestMapping(value="/api/longurl",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	@Autowired
+	private ChatBot chatBot;
+
+	private static Logger LOGGER = Logger.getLogger("com.urlShortenerService");
+
+	@RequestMapping(value = "/api/longurl", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
@@ -55,13 +70,13 @@ public class ApiController {
 		List<String> value = new ArrayList<>();
 		value.add(long_url);
 		value.add(currentDate.toString());
-		if(!urlTable.writeRow(value, subFamily, shortUrl)) {
+		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
 			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
 		}
-		
+
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
-		
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			UserDetails oauthUser = (UserDetails) auth.getPrincipal();
@@ -74,7 +89,7 @@ public class ApiController {
 				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
 			}
 		}
-		
+
 		System.out.println(long_url);
 		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 	}
@@ -105,7 +120,7 @@ public class ApiController {
 	@RequestMapping("/api/shorturl")
 	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
 		List<String> longUrl = urlTable.getRow(shortUrl);
-		if(longUrl!=null)
+		if (longUrl != null)
 			return new ResponseEntity<>(longUrl.get(1), HttpStatus.OK);
 		else
 			return new ResponseEntity<>("Error getting the longUrl", HttpStatus.FORBIDDEN);
@@ -136,3 +151,51 @@ public class ApiController {
 		
 		return "QR generated successfully";
 	}
+
+	@RequestMapping("/api/longurlai")
+	public ResponseEntity<String> longToShortAIUrl(@RequestParam("longurl") String long_url) {
+		ConsoleHandler ch = new ConsoleHandler();
+		LOGGER.addHandler(ch);
+
+		Date currentDate = new Date();
+		String shortUrl = Base62Encoding.base62Encoding();
+		List<String> subFamily = new ArrayList<>();
+		subFamily.add("long_url");
+		subFamily.add("created");
+
+		List<String> value = new ArrayList<>();
+		value.add(long_url);
+		value.add(currentDate.toString());
+
+		// Prompt user for input string
+		try {
+			// Send input to ChatGPT API and display response
+			System.out.println("Attempting request to the AI Model");
+			String response = chatBot.sendQuery(long_url);
+			System.out.println("Response:" + response);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Unexpected error:" + e.getMessage());
+		}
+
+		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
+			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+		}
+
+		List<String> subFamily2 = new ArrayList<>();
+		subFamily2.add("List_of_Urls");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
+			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+			List<String> data = userTable.getRow(oauthUser.getEmail());
+			System.out.println(data.get(0) + " " + data.get(1) + " " + data.get(2));
+			List<String> finalData = new ArrayList<>();
+
+			data.set(0, data.get(0) + "," + shortUrl);
+			if (!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
+				return new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
+			}
+		}
+		return new ResponseEntity<>("Entry Successful", HttpStatus.ACCEPTED);
+	}
+}
