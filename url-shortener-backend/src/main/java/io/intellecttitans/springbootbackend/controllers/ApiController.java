@@ -31,6 +31,9 @@ import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
 import io.intellecttitans.springbootbackend.configurations.ChatBot;
 import io.intellecttitans.springbootbackend.utils.UserDetails;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -171,10 +174,16 @@ public class ApiController {
 		try {
 			// Send input to ChatGPT API and display response
 			System.out.println("Attempting request to the AI Model");
-			String response = chatBot.sendQuery(long_url);
+			JSONObject response = chatBot.sendQuery(long_url);
+			JSONArray  shortUrlAIArray = (JSONArray) response.get("shorturl");
+			String resString = shortUrlAIArray.get(0).toString();
+			if (!resString.isEmpty()) {
+				shortUrl = resString + shortUrl.substring(6);
+			}
 			System.out.println("Response:" + response);
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Unexpected error:" + e.getMessage());
+			System.out.println("Generating using AI Failed. Switching back to normal methods.");
 		}
 
 		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
