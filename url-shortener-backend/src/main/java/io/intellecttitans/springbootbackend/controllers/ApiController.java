@@ -112,8 +112,10 @@ public class ApiController {
 	
 	@RequestMapping(value="/api/shorturl",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> shortToLongUrl(@RequestParam("shorturl") String shortUrl){
+		System.out.println(shortUrl);
 
-		List<String> longUrl = urlTable.getRow(shortUrl.substring(13, 21));
+		List<String> longUrl = urlTable.getRow(shortUrl);
+
 		if(longUrl!=null) {			
 			return new ResponseEntity<>(longUrl.get(1).substring(12, longUrl.get(1).length() - 2), HttpStatus.OK);
 		}
@@ -134,11 +136,10 @@ public class ApiController {
 	
 	@RequestMapping(value="/api/barcode",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> shortToLongUrlBarCode(@RequestParam("longurl") String longUrl) throws Exception{
-		System.out.println(longUrl);
 		try {
 	    	QRCodeWriter barcodeWriter = new QRCodeWriter();
 		    BitMatrix bitMatrix = 
-		      barcodeWriter.encode(longUrl.substring(12, longUrl.length() - 2), BarcodeFormat.QR_CODE, 200, 200);
+		      barcodeWriter.encode(longUrl, BarcodeFormat.QR_CODE, 200, 200);
 		    
 		    BufferedImage image= MatrixToImageWriter.toBufferedImage(bitMatrix);
 
