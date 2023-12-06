@@ -42,7 +42,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","https://rice-comp-539-spring-2022.uk.r.appspot.com"})
 @RestController
 public class ApiController {
 
@@ -69,7 +69,7 @@ public class ApiController {
 		
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
-		
+		System.out.println(long_url);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			UserDetails oauthUser = (UserDetails) auth.getPrincipal();
