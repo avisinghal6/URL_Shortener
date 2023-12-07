@@ -1,7 +1,8 @@
 # URL_Shortener
 We have taken upon the challenge of building a URL Shortener service with the intention of scalability at the top. This application serves the purpose with the help of SpringBoot and Bigtable. Google OAuth has been securely implemented to handle the recovery of user data. The app extends this as an attempt to compete with the market through unique features such as Barcode Generation and Magic AI built on top of ChatGPT.
-
+<br>
 Note: There is a CI pipeline in place that tests for build. While it provides reliability to the application, it does not mean that the application will run on your system.
+
 ## Pre-requisites
 
  - You'll need to acquire or create an application.properties file in ```url-shortener-backend/src/main/resources/application.properties``` to get all the required API keys and variables to act upon
