@@ -124,7 +124,6 @@ public class ApiController {
 			
 			
         }
-		System.out.println(output);
 		
 		return new ResponseEntity<>(output,HttpStatus.OK);
 	}
