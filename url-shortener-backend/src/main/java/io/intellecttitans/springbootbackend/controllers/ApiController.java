@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
+
+import java.util.logging.Handler;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.net.URI;
 
@@ -26,7 +29,11 @@ import io.intellecttitans.springbootbackend.configurations.UrlTable;
 import io.intellecttitans.springbootbackend.configurations.UserTable;
 import io.intellecttitans.springbootbackend.utils.Base62Encoding;
 import io.intellecttitans.springbootbackend.utils.CustomOAuth2User;
+import io.intellecttitans.springbootbackend.configurations.ChatBot;
 import io.intellecttitans.springbootbackend.utils.UserDetails;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,12 +57,17 @@ public class ApiController {
 
 	@Autowired
 	private UrlTable urlTable;
-	
+
 	@Autowired
 	private UserTable userTable;
 
-	@RequestMapping(value="/api/longurl",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
-	public ResponseEntity<String>longToShortUrl(@RequestParam("longurl") String long_url) {
+	@Autowired
+	private ChatBot chatBot;
+
+	private static Logger LOGGER = Logger.getLogger("com.urlShortenerService");
+
+	@RequestMapping(value = "/api/longurl", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> longToShortUrl(@RequestParam("longurl") String long_url) {
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
@@ -66,13 +78,13 @@ public class ApiController {
 		List<String> value = new ArrayList<>();
 		value.add(long_url);
 		value.add(currentDate.toString());
-		if(!urlTable.writeRow(value, subFamily, shortUrl)) {
-			new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
+			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
 		}
-		
+
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
-		System.out.println(long_url);
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			UserDetails oauthUser = (UserDetails) auth.getPrincipal();
@@ -82,7 +94,7 @@ public class ApiController {
 			finalData.add(data.get(0)+","+shortUrl);
 			data.set(0, data.get(0)+","+shortUrl);
 			if(!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
-				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
 			}
 		}
 //		
@@ -120,9 +132,61 @@ public class ApiController {
 	        return new ResponseEntity<>(bytesBase64, HttpStatus.OK);
 	    } catch (IOException e) {
 	        e.printStackTrace();
-	        return new ResponseEntity<>("Error generating barcode", HttpStatus.FORBIDDEN);   
+			return new ResponseEntity<>("Error generating barcode", HttpStatus.FORBIDDEN);   
+
 	    }
 	}
-	
 
+	@RequestMapping(value = "/api/longurlai", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> longToShortAIUrl(@RequestParam("longurl") String long_url) {
+		ConsoleHandler ch = new ConsoleHandler();
+		LOGGER.addHandler(ch);
+
+		Date currentDate = new Date();
+		String shortUrl = Base62Encoding.base62Encoding();
+		List<String> subFamily = new ArrayList<>();
+		subFamily.add("long_url");
+		subFamily.add("created");
+
+		List<String> value = new ArrayList<>();
+		value.add(long_url);
+		value.add(currentDate.toString());
+
+		// Prompt user for input string
+		try {
+			// Send input to ChatGPT API and display response
+			System.out.println("Attempting request to the AI Model");
+			JSONObject response = chatBot.sendQuery(long_url);
+			JSONArray  shortUrlAIArray = (JSONArray) response.get("shorturl");
+			String resString = shortUrlAIArray.get(0).toString();
+			if (!resString.isEmpty()) {
+				shortUrl = resString + shortUrl.substring(6);
+			}
+			System.out.println("Response:" + response);
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Unexpected error:" + e.getMessage());
+			System.out.println("Generating using AI Failed. Switching back to normal methods.");
+		}
+
+		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
+			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+		}
+
+		List<String> subFamily2 = new ArrayList<>();
+		subFamily2.add("List_of_Urls");
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
+			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
+			List<String> data = userTable.getRow(oauthUser.getEmail());
+			System.out.println(data.get(0) + " " + data.get(1) + " " + data.get(2));
+			List<String> finalData = new ArrayList<>();
+
+			data.set(0, data.get(0) + "," + shortUrl);
+			if (!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
+				return new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
+			}
+		}
+		return new ResponseEntity<>("Entry Successful", HttpStatus.ACCEPTED);
+	}
 }
