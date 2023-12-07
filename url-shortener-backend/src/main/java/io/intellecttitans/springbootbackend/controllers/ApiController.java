@@ -93,7 +93,7 @@ public class ApiController {
 			finalData.add(data.get(0)+","+shortUrl);
 			data.set(0, data.get(0)+","+shortUrl);
 			if(!userTable.writeRow(finalData, subFamily2, oauthUser.getEmail())) {
-				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
 			}
 		}
 		
@@ -136,7 +136,7 @@ public class ApiController {
 	    }
 	}
 
-	@RequestMapping("/api/longurlai")
+	@RequestMapping(value = "/api/longurlai", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> longToShortAIUrl(@RequestParam("longurl") String long_url) {
 		ConsoleHandler ch = new ConsoleHandler();
 		LOGGER.addHandler(ch);
