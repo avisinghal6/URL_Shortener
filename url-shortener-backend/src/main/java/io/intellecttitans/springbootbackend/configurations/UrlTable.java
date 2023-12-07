@@ -71,12 +71,9 @@ public class UrlTable {
 				return null;
 			}
 			Row row = dataClient.readRow(tableId, rowKey);
-			System.out.println("Row: " + row.getKey().toStringUtf8());
 			List<String> data= new ArrayList<>();
 			
 			for (RowCell cell : row.getCells()) {
-				System.out.printf("Family: %s    Qualifier: %s    Value: %s%n", cell.getFamily(),
-						cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8());
 				data.add(cell.getValue().toStringUtf8());
 			}
 			
@@ -122,9 +119,6 @@ public class UrlTable {
 
 	@Override
 	protected void finalize() throws Throwable {
-		// Call the "close" method on the client to safely clean up any remaining
-		// background
-		// resources.
 		try {
 			dataClient.close();
 			System.out.println("Closing data client");
