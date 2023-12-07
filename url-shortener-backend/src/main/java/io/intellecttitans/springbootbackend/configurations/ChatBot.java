@@ -83,7 +83,6 @@ public class ChatBot {
             post.setEntity(inputEntity);
             post.setHeader("Authorization", "Bearer " + key);
             post.setHeader("Content-Type", "application/json");
-//                 Send POST request and parse response
 
             System.out.println("Chatbot client running");
              HttpResponse response = httpClient.execute(post);
@@ -101,21 +100,12 @@ public class ChatBot {
             }
 
             JSONArray responseArray = resJson.getJSONArray("choices");
-            // List<String> responseList = new ArrayList<>();
 
-            // for (int i = 0; i < responseArray.length(); i++) {
-            //     JSONObject responseObj = responseArray.getJSONObject(i);
-            //     String responseString = responseObj.getJSONObject("message").getString("content");
-            //     responseList.add((new JSONObject(responseString)).toString());
-            // }
             JSONObject responseObj = responseArray.getJSONObject(0);
             JSONObject contentJsonObject = new JSONObject(responseObj.getJSONObject("message").getString("content"));
             System.out.println(contentJsonObject);
-//
-            // // Convert response list to JSON and return it
-            // Gson gson = new Gson();
-            // String jsonResponse = gson.toJson(responseList);
-            // System.out.println(jsonResponse);
+
+            
             return contentJsonObject;
         } catch (Exception e) {
             LOGGER.error("Error sending request: {}", e.getMessage());

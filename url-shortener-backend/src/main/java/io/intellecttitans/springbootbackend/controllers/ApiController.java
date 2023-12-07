@@ -143,7 +143,9 @@ public class ApiController {
 
 		Date currentDate = new Date();
 		String shortUrl = Base62Encoding.base62Encoding();
+		String backupshortUrl = Base62Encoding.base62Encoding();
 		List<String> subFamily = new ArrayList<>();
+		Boolean normal = true;
 		subFamily.add("long_url");
 		subFamily.add("created");
 
@@ -159,18 +161,25 @@ public class ApiController {
 			JSONArray  shortUrlAIArray = (JSONArray) response.get("shorturl");
 			String resString = shortUrlAIArray.get(0).toString();
 			if (!resString.isEmpty()) {
-				shortUrl = resString + shortUrl.substring(6);
+				shortUrl = resString + shortUrl.substring(resString.length());
 			}
 			System.out.println("Response:" + response);
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Unexpected error:" + e.getMessage());
 			System.out.println("Generating using AI Failed. Switching back to normal methods.");
+			normal = true;
 		}
-
-		if (!urlTable.writeRow(value, subFamily, shortUrl)) {
-			return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+		if (!normal && !urlTable.rowExists(shortUrl)){
+			if (!urlTable.writeRow(value, subFamily, shortUrl)) {
+				return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+			}
 		}
-
+		else{
+			System.out.println("Collision detected. Switching back to normal methods");
+			if (!urlTable.writeRow(value, subFamily, backupshortUrl)) {
+				return new ResponseEntity<>("Error writing to URL table", HttpStatus.BAD_REQUEST);
+			}
+		}
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
 
