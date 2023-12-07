@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.intellecttitans.springbootbackend.services.GoogleUserInfoService;
@@ -44,7 +45,10 @@ public class WebSecurityConfig implements WebMvcConfigurer{
         this.googleservice = googleservice;
     }
 	
-	
+	@Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+	    registry.addViewController("/").setViewName("forward:/index.html");
+	}
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,9 +57,10 @@ public class WebSecurityConfig implements WebMvcConfigurer{
 				.addFilterBefore(new CustomJwtDecoder(googleservice,securityConfig,userTable), BasicAuthenticationFilter.class)
 				
 				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(HttpMethod.POST, "/api/longurl/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/longurl").permitAll()
 						.requestMatchers("/api/**").permitAll()
 						.requestMatchers("/loginUser").permitAll()
+						.requestMatchers("/**").permitAll()
 						.anyRequest()
 						.authenticated()
 						)

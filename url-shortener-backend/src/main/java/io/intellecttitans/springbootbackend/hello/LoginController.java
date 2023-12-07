@@ -16,11 +16,11 @@ public class LoginController {
 		return "User Logged In";
 	}
 	
-	@GetMapping("/")
-    public RedirectView redirectToSpecificUrl() {
-        String specificUrl = "http://localhost:3000"; // Replace with your desired URL
-        return new RedirectView(specificUrl);
-    }
+//	@GetMapping("/")
+//    public String redirectToSpecificUrl() {
+//        String specificUrl = "http://localhost:3000"; // Replace with your desired URL
+//        return "forward:/index.html";
+//    }
 
 }
   
