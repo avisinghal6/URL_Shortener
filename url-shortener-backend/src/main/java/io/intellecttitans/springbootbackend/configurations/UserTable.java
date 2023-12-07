@@ -33,9 +33,7 @@ public class UserTable {
 
 	@PostConstruct
 	public void init() {
-		// Initialize the dataClient within the @PostConstruct method.
 		try {
-			System.out.println(columnFamilyName);
 			BigtableDataSettings settings = BigtableDataSettings.newBuilder().setProjectId(projectId)
 					.setInstanceId(instanceId).build();
 			dataClient = BigtableDataClient.create(settings);

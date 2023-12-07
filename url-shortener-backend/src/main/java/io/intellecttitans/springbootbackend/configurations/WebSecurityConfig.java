@@ -55,6 +55,7 @@ public class WebSecurityConfig implements WebMvcConfigurer{
 				.authorizeHttpRequests((requests) -> requests
 						.requestMatchers(HttpMethod.POST, "/api/longurl/**").permitAll()
 						.requestMatchers("/api/**").permitAll()
+						.requestMatchers("/loginUser").permitAll()
 						.anyRequest()
 						.authenticated()
 						)
