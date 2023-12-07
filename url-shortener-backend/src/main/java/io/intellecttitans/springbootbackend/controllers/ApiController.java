@@ -115,6 +115,32 @@ public class ApiController {
 		
 	}
 	
+	@RequestMapping(value="/api/batch",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<List<String>> batchConversion(@RequestParam("urlBatch") List<String>  batch) throws Exception{
+		System.out.println(batch);
+		List<String> subFamily = new ArrayList<>();
+		List<String> output = new ArrayList<>();
+		subFamily.add("long_url");
+		subFamily.add("created");
+		for (int i = 0; i < batch.size(); i++) {
+//            System.out.println(batch.get(i));
+			Date currentDate = new Date();
+			String shortUrl = Base62Encoding.base62Encoding();
+			List<String> value = new ArrayList<>();
+			value.add(batch.get(i));
+			value.add(currentDate.toString());
+			if(!urlTable.writeRow(value, subFamily, shortUrl)) {
+				new ResponseEntity<>("Error writing "+ batch.get(i)+" to URL table", HttpStatus.BAD_REQUEST);
+			}
+			
+			output.add(shortUrl);
+			
+			
+        }
+		
+		return new ResponseEntity<>(output,HttpStatus.OK);
+	}
+	
 	@RequestMapping(value="/api/barcode",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity<String> shortToLongUrlBarCode(@RequestParam("longurl") String longUrl) throws Exception{
 		try {
