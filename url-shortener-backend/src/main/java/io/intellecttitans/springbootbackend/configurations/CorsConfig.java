@@ -21,6 +21,7 @@ public class CorsConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
 		config.addAllowedOrigin("http://localhost:3000");
+		config.addAllowedOrigin("https://rice-comp-539-spring-2022.uk.r.appspot.com");
 		config.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT,
 				HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 

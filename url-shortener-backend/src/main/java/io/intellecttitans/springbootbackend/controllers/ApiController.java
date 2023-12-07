@@ -61,6 +61,7 @@ public class ApiController {
 		List<String> subFamily = new ArrayList<>();
 		subFamily.add("long_url");
 		subFamily.add("created");
+		
 
 		List<String> value = new ArrayList<>();
 		value.add(long_url);
@@ -84,7 +85,7 @@ public class ApiController {
 				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
 			}
 		}
-		
+//		
 		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
 		
 	}

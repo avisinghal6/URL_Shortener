@@ -80,7 +80,7 @@ public class UrlTable {
 			return data;
 
 		} catch (NotFoundException e) {
-			System.err.println("Failed to read from a non-existent table: " + e.getMessage());
+			System.err.println("Failed to read from a non-existent table:  " + e.getMessage());
 			return null;
 		} catch (Exception e) {
 			System.err.println("Error during reading rows: \n" + e.toString());
