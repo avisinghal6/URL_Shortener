@@ -2,6 +2,7 @@ package io.intellecttitans.springbootbackend.controllers;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Date;
 import javax.imageio.ImageIO;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.net.URI;
 
 import org.krysalis.barcode4j.impl.upcean.EAN13Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
@@ -44,10 +46,13 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import org.apache.commons.codec.binary.Base64;
 
-import org.json.JSONException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000","https://rice-comp-539-spring-2022.uk.r.appspot.com"})
 @RestController
 public class ApiController {
 
@@ -79,12 +84,12 @@ public class ApiController {
 
 		List<String> subFamily2 = new ArrayList<>();
 		subFamily2.add("List_of_Urls");
-
+		System.out.println(long_url);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
 			UserDetails oauthUser = (UserDetails) auth.getPrincipal();
 			List<String> data= userTable.getRow(oauthUser.getEmail());
-			System.out.println(data.get(0)+" "+data.get(1)+" "+data.get(2));
+		
 			List<String> finalData= new ArrayList<>();
 			finalData.add(data.get(0)+","+shortUrl);
 			data.set(0, data.get(0)+","+shortUrl);
@@ -92,68 +97,45 @@ public class ApiController {
 				new ResponseEntity<>("Error writing to user table", HttpStatus.BAD_REQUEST);
 			}
 		}
-
-		System.out.println(long_url);
-		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
-	}
-//	
-//	@RequestMapping("/api/longurl/{long_url}")
-//	public ResponseEntity<String> longToShortUrl(@PathVariable String long_url) {
-//		
-//		Date currentDate = new Date();
-//		String shortUrl = Base62Encoding.base62Encoding();
-//		List<String> subFamily = new ArrayList<>();
-//		subFamily.add("long_url");
-//		subFamily.add("created");
-//
-//		List<String> value = new ArrayList<>();
-//		value.add(long_url);
-//		value.add(currentDate.toString());
-//		bigTableObj.writeRow(value, subFamily, shortUrl);
-//		
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof String)) {
-//			CustomOAuth2User oauthUser = (CustomOAuth2User) auth.getPrincipal();
-//			System.out.println(oauthUser.getName()+" "+ oauthUser.getEmail());
-//		}
-//		System.out.println(long_url);
-//		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
-//	}
-
-	@RequestMapping("/api/shorturl")
-	public ResponseEntity<String> shortToLongUrl(@PathVariable String shortUrl) {
-		List<String> longUrl = urlTable.getRow(shortUrl);
-		if (longUrl != null)
-			return new ResponseEntity<>(longUrl.get(1), HttpStatus.OK);
-		else
-			return new ResponseEntity<>("Error getting the longUrl", HttpStatus.FORBIDDEN);
-	}
-
-	@RequestMapping("/api/barcode")
-	public String shortToLongUrlBarCode(@PathVariable String longUrl) throws Exception  {
-		// TODO: create the short URL and bar code, return the bar code, save in
-		// database. The return type will be changed.
 		
+		return new ResponseEntity<>(shortUrl, HttpStatus.OK);
+		
+	}
 
-//	    barcodeGenerator.generateBarcode(canvas, "avisinghal.com");
-	    
-	    
-	    try {
+	
+	@RequestMapping("/api/shorturl/{shortUrl}")
+	public ResponseEntity<Void> shortToLongUrl(@PathVariable String shortUrl) {
+		List<String> longUrl = urlTable.getRow(shortUrl);
+		if (longUrl.get(1).substring(0,4).equals("http")) {
+			return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(longUrl.get(1))).build();
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("http://" + longUrl.get(1))).build();
+		}
+		
+	}
+	
+	@RequestMapping(value="/api/barcode",method = RequestMethod.POST,consumes = "application/x-www-form-urlencoded")
+	public ResponseEntity<String> shortToLongUrlBarCode(@RequestParam("longurl") String longUrl) throws Exception{
+		try {
 	    	QRCodeWriter barcodeWriter = new QRCodeWriter();
 		    BitMatrix bitMatrix = 
 		      barcodeWriter.encode(longUrl, BarcodeFormat.QR_CODE, 200, 200);
 		    
 		    BufferedImage image= MatrixToImageWriter.toBufferedImage(bitMatrix);
-		    
-	        File outputFile = new File("barcode.png"); // Replace with the desired file path
-	        ImageIO.write(image, "PNG", outputFile);
-	        System.out.println("Barcode image saved to " + outputFile.getAbsolutePath());
+
+		    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		    ImageIO.write(image, "PNG", baos);
+		    byte[] bytes = baos.toByteArray();
+		    String bytesBase64 = Base64.encodeBase64String(bytes);
+
+	        return new ResponseEntity<>(bytesBase64, HttpStatus.OK);
 	    } catch (IOException e) {
 	        e.printStackTrace();
+	        return new ResponseEntity<>("Error generating barcode", HttpStatus.FORBIDDEN);   
 	    }
-		
-		return "QR generated successfully";
 	}
+	
 
 	@RequestMapping("/api/longurlai")
 	public ResponseEntity<String> longToShortAIUrl(@RequestParam("longurl") String long_url) {
