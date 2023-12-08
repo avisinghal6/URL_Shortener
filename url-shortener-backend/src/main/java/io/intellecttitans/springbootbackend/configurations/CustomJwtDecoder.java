@@ -64,8 +64,9 @@ public class CustomJwtDecoder extends OncePerRequestFilter {
 
             if(authElements.length != 2)
                 throw new JWTVerificationException("INVALID TOKEN");
+            
 
-            if ("Bearer".equals(authElements[0])) {
+            if ("Bearer".equals(authElements[0]) && authElements.length == 2) {
                 try {
                 	
                 	JwtDecoder jwtdecoder = this.securityConfig.jwtDecoder();
@@ -143,19 +144,22 @@ public class CustomJwtDecoder extends OncePerRequestFilter {
                 }
                 catch (JWTDecodeException e) {
                     System.err.println("Error");
-                    return;
+//                    return;
                 }
                 catch (TokenExpiredException e) {
                 	System.err.println("Error");
-                    return;
+//                    return;
                 }
                 catch (RuntimeException e) {
                     SecurityContextHolder.clearContext();
-                    throw e;
+//                    throw e;
                 } catch (GeneralSecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+                
+            }else {
+            	System.out.println("User not logged in");
             }
         }
 

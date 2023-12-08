@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000","https://rice-comp-539-spring-2022.uk.r.appspot.com"})
+@CrossOrigin(origins = {"http://localhost:3000","https://team2-dot-rice-comp-539-spring-2022.uk.r.appspot.com"})
 public class LoginController {
 	
 	@RequestMapping(value="/loginUser")

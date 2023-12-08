@@ -51,7 +51,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
-@CrossOrigin(origins = {"http://localhost:3000","https://rice-comp-539-spring-2022.uk.r.appspot.com"})
+@CrossOrigin(origins = {"http://localhost:3000","https://team2-dot-rice-comp-539-spring-2022.uk.r.appspot.com"})
 @RestController
 public class ApiController {
 
